@@ -1,7 +1,17 @@
 import {GameError} from './engine.mjs';
 export class SupabaseStore {
- constructor(url,key){this.url=url.replace(/\/$/,'')+'/rest/v1';this.key=key;}
- async request(path,options={}){const r=await fetch(this.url+path,{...options,signal:AbortSignal.timeout(10000),headers:{apikey:this.key,...(this.key.startsWith('sb_secret_')?{}:{Authorization:`Bearer ${this.key}`}), 'Content-Type':'application/json',...options.headers}});if(!r.ok)throw new GameError('Le service de sauvegarde est momentanément indisponible.',503);const body=await r.text();return body?JSON.parse(body):null;}
+ constructor(url,key){this.url=url.trim().replace(/\/$/,'')+'/rest/v1';this.key=key.trim();}
+ async request(path,options={}){
+  const r=await fetch(this.url+path,{...options,signal:AbortSignal.timeout(10000),headers:{apikey:this.key,...(this.key.startsWith('sb_secret_')?{}:{Authorization:`Bearer ${this.key}`}), 'Content-Type':'application/json',...options.headers}});
+  const body=await r.text();
+  if(!r.ok){
+   let code='unknown';try{const c=JSON.parse(body).code;if(typeof c==='string'&&/^[A-Z0-9_]{1,20}$/.test(c))code=c;}catch{}
+   // Log only status and database error code; never headers, keys, room state or raw responses.
+   console.error('deal_store_error',JSON.stringify({status:r.status,code}));
+   throw new GameError('Le service de sauvegarde est momentanément indisponible.',503);
+  }
+  return body?JSON.parse(body):null;
+ }
  async get(code){return (await this.request(`/deal_rooms?code=eq.${encodeURIComponent(code)}&select=version,state`))[0]||null;}
  async create(state){await this.request('/deal_rooms',{method:'POST',body:JSON.stringify({code:state.code,state,version:0}),headers:{Prefer:'return=minimal'}});}
  async cas(code,version,state){const rows=await this.request(`/deal_rooms?code=eq.${encodeURIComponent(code)}&version=eq.${version}`,{method:'PATCH',body:JSON.stringify({state,version:version+1}),headers:{Prefer:'return=representation'}});return rows.length===1;}
