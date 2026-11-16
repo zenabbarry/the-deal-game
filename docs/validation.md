@@ -1,5 +1,12 @@
 # Validation
 
+Production vérifiée : https://the-deal-game-rust.vercel.app — le 16 novembre 2026 à 21 h 37 (Paris), sur la version de code `5c186725aa63cb2ff3603f394020d9eb54d2d228`.
+
+- Partie complète sur Vercel avec sauvegarde Supabase : 15 décisions, trois votes concurrents par décision, cinq rôles HTTP ; toutes les assertions réussies. Plus long groupe de votes et lecture publique mesuré : 858 ms.
+- Navigateur en production : page publique sans connexion Vercel, formulaire et vote sur une largeur de 390 px, confirmation, actualisation et retour privé conservé. Aucun débordement horizontal ni erreur JavaScript observé sur ce parcours.
+- Temps programmé : 18 min 08 en incluant 90 secondes d’accueil, les épilogues, le podium et deux minutes de correction. Les échanges supplémentaires et pauses consomment la marge restante ou prolongent la séance.
+- Secrets réservés à l’environnement de production et exclus du dépôt. La clé serveur n’apparaît pas dans le client. Les autres déploiements Vercel restent protégés.
+
 Vérifications du 16 novembre 2026 avant publication :
 
 - 13 tests automatisés réussis : quatre fins, formules et seuils, absence de réponse, événements appliqués une seule fois, accès privés, trois inscriptions simultanées, capacité, votes concurrents, doubles envois, retard, pause et concurrence entre commandes présentateur.
